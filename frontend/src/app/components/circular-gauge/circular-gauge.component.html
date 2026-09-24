@@ -1,0 +1,17 @@
+<div class="gauge" [class]="statusClass">
+  <svg viewBox="0 0 120 120" class="gauge-svg">
+    <circle class="gauge-track" cx="60" cy="60" [attr.r]="radius" />
+    <circle
+      class="gauge-fill"
+      cx="60"
+      cy="60"
+      [attr.r]="radius"
+      [attr.stroke-dasharray]="circumference"
+      [attr.stroke-dashoffset]="dashOffset"
+    />
+  </svg>
+  <div class="gauge-center">
+    <span class="gauge-value mono">{{ value | number: '1.0-2' }}</span>
+    <span class="gauge-unit">{{ unit }}</span>
+  </div>
+</div>

@@ -1,0 +1,141 @@
+<div class="dashboard">
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M3 17L9 11L13 15L21 6"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path d="M15 6H21V12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+      <div class="brand-text">
+        <h1>Controller Monitor</h1>
+        <span class="brand-subtitle">Real-time telemetry &amp; diagnostics</span>
+      </div>
+    </div>
+
+    <div class="header-status">
+      <div class="connection-pill" [class]="telemetryService.connectionStatus.value">
+        <span class="dot"></span>
+        {{ connectionLabel }}
+      </div>
+      @if (telemetryService.lastUpdated | async; as updated) {
+        <div class="last-updated">
+          <span class="label">Last updated</span>
+          <span class="value mono">{{ updated | date: 'HH:mm:ss' }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="header-controls">
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="toggleTheme()"
+        [attr.aria-label]="themeService.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
+        @if (themeService.theme() === 'dark') {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8" />
+            <path
+              d="M12 2.5V5M12 19V21.5M21.5 12H19M5 12H2.5M18.4 5.6L16.6 7.4M7.4 16.6L5.6 18.4M18.4 18.4L16.6 16.6M7.4 7.4L5.6 5.6"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
+        } @else {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M20.5 14.7A8.5 8.5 0 1 1 9.3 3.5a7 7 0 0 0 11.2 11.2Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+          </svg>
+        }
+      </button>
+
+      <div class="settings-wrap">
+        <button
+          type="button"
+          class="icon-btn"
+          [class.active]="settingsOpen"
+          (click)="toggleSettings()"
+          aria-label="Settings"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" />
+            <path
+              d="M19.4 13.5a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V19.5a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.04H4.5a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 6.15 7.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H10.6A1.7 1.7 0 0 0 11.64 1.6V1.5a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09c.28.7.9 1.19 1.56 1.19H22.5a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.01 1.06Z"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+
+        @if (settingsOpen) {
+          <div class="settings-panel">
+            <div class="settings-row">
+              <span>Sample window</span>
+              <span class="mono">{{ sampleWindow }} pts</span>
+            </div>
+            <div class="settings-row">
+              <span>Poll interval</span>
+              <span class="mono">{{ refreshRateMs }} ms</span>
+            </div>
+            <div class="settings-row">
+              <span>Theme</span>
+              <span class="mono">{{ themeService.theme() }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="toolbar-group">
+      @if (telemetryService.errorMessage | async; as error) {
+        <span class="toolbar-hint error">{{ error }}</span>
+      } @else if (telemetryService.loading | async) {
+        <span class="toolbar-hint">Connecting to controller feed&hellip;</span>
+      } @else {
+        <span class="toolbar-hint">Streaming velocity, pressure and temperature</span>
+      }
+    </div>
+
+    <div class="toolbar-group">
+      <button type="button" class="btn" (click)="exportCsv()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M4 19.5h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        Export CSV
+      </button>
+      <button type="button" class="btn primary" (click)="exportExcel()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M4 19.5h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        Export Excel
+      </button>
+    </div>
+  </div>
+
+  <section class="cards-grid">
+    @for (param of telemetryService.parameters | async; track param.key) {
+      <app-parameter-card
+        [parameter]="param"
+        [lastUpdated]="(telemetryService.lastUpdated | async) ?? null"
+        (unitChange)="onUnitChanged()"
+      />
+    }
+  </section>
+</div>

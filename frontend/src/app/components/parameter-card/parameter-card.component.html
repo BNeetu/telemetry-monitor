@@ -1,0 +1,49 @@
+<article class="parameter-card">
+  <header class="card-header">
+    <h2>{{ parameter.label }}</h2>
+    <span class="status-badge" [class]="'status-' + parameter.status">{{ statusLabel }}</span>
+  </header>
+
+  <div class="card-body">
+    <app-circular-gauge
+      [value]="parameter.value"
+      [min]="parameter.min"
+      [max]="parameter.max"
+      [unit]="parameter.unit"
+      [status]="parameter.status"
+    />
+
+    <div class="meta">
+      <div class="meta-row">
+        <span class="label">Unit</span>
+        <div class="select-wrap">
+          <select [ngModel]="parameter.unit" (ngModelChange)="onUnitSelected($event)">
+            @for (unit of availableUnits; track unit) {
+              <option [value]="unit">{{ unit }}</option>
+            }
+          </select>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span class="label">Range</span>
+        <span class="value mono">{{ parameter.min }}&ndash;{{ parameter.max }} {{ parameter.unit }}</span>
+      </div>
+      <div class="meta-row">
+        <span class="label">Updated</span>
+        <span class="value mono">{{ lastUpdated | date: 'HH:mm:ss' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <app-trend-chart
+      [history]="parameter.history"
+      [unit]="parameter.unit"
+      [label]="parameter.label"
+      [statusColor]="statusColor"
+    />
+  </div>
+</article>
