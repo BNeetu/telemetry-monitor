@@ -17,11 +17,12 @@ import {
   ParameterKey,
   StatusLevel,
 } from '../models/telemetry.model';
+import { environment } from '../../environments/environment';
 import { UnitConversionService } from './unit-conversion.service';
 
 @Injectable({ providedIn: 'root' })
 export class TelemetryService implements OnDestroy {
-  private readonly apiUrl = 'http://localhost:3000/api/dashboard';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/dashboard`;
   private pollSub?: Subscription;
   private latestRaw?: DashboardResponse;
 
