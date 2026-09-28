@@ -1,16 +1,13 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 
 const configuredUrl = process.env.TELEMETRY_API_URL?.trim().replace(/\/+$/, '');
-
-if (process.env.VERCEL && !configuredUrl) {
-  throw new Error('Set TELEMETRY_API_URL in the Vercel project environment variables.');
-}
-
-const apiBaseUrl = configuredUrl || 'http://localhost:3000';
+const productionApiUrl = 'https://telemetry-monitor-api.onrender.com';
+const localApiUrl = 'http://localhost:3000';
+const apiBaseUrl = configuredUrl || (process.env.VERCEL ? productionApiUrl : localApiUrl);
 const parsedUrl = new URL(apiBaseUrl);
 
 if (process.env.VERCEL && parsedUrl.protocol !== 'https:') {
-  throw new Error('TELEMETRY_API_URL must use HTTPS on Vercel.');
+  throw new Error('The production telemetry API URL must use HTTPS on Vercel.');
 }
 
 const outputDirectory = new URL('../src/environments/', import.meta.url);

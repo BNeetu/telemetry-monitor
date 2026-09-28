@@ -90,10 +90,10 @@ Create a Render Blueprint from this repository and select `render.yaml`. It depl
 
 - Set the Vercel project's **Root Directory** to `frontend`.
 - Set its **Build Command** to `npm run build` and **Output Directory** to `dist/frontend/browser`.
-- Add `TELEMETRY_API_URL` as an environment variable for the Production (and Preview, if used) environment. Set it to the Render service's base URL, without `/api/dashboard` (for example, `https://telemetry-monitor-api.onrender.com`).
-- Redeploy after setting the variable. The production Angular build embeds this URL; it does not read Vercel variables at runtime.
+- The Vercel build defaults to `https://telemetry-monitor-api.onrender.com`, matching the Render service name in `render.yaml`. Deploy the backend first. If Render gives the service a different URL, set `TELEMETRY_API_URL` in Vercel's Production (and Preview, if used) environment to the service's HTTPS base URL, without `/api/dashboard`.
+- Redeploy after changing the variable. The production Angular build embeds the selected URL; it does not read Vercel variables at runtime.
 
-Local development continues to use `http://localhost:3000`. A Vercel build fails if `TELEMETRY_API_URL` is missing or does not use HTTPS.
+Local development continues to use `http://localhost:3000`.
 
 ## Architecture & Technical Decisions
 
