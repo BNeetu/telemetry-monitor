@@ -84,6 +84,16 @@ npm run start:prod
 
 This builds the backend and frontend, starts the compiled API, waits for its health check, and opens the built Angular app in Electron.
 
+### 5. Run unit tests
+
+From the project root:
+
+```bash
+npm test
+```
+
+The Angular Jasmine tests run once in headless Chrome.
+
 ## Deploy the Web App
 
 ### Backend on Render
