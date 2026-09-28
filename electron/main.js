@@ -1,7 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
-const isDev = !app.isPackaged;
+const isProduction = app.isPackaged || process.env.NODE_ENV === 'production';
 const DEV_URL = 'http://localhost:4200';
 
 function createWindow() {
@@ -17,7 +17,7 @@ function createWindow() {
     },
   });
 
-  if (isDev) {
+  if (!isProduction) {
     win.loadURL(DEV_URL);
     win.webContents.openDevTools({ mode: 'detach' });
   } else {

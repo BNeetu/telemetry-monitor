@@ -6,14 +6,15 @@
   "main": "electron/main.js",
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "start": "npm run dev",
     "backend": "npm run dev --prefix backend",
     "frontend": "npm start --prefix frontend",
     "electron": "electron .",
-    "dev": "concurrently -k \"npm run backend\" \"npm run frontend\" \"wait-on http://localhost:4200 http://localhost:3000/api/health && electron .\"",
+    "dev": "concurrently -k \"node scripts/run-backend.mjs\" \"node scripts/run-frontend.mjs\" \"wait-on http://localhost:4200 http://localhost:3000/api/health && electron .\"",
     "build:backend": "npm run build --prefix backend",
     "build:frontend": "npm run build --prefix frontend",
     "build": "npm run build:backend && npm run build:frontend",
-    "start:prod": "npm run build:backend && npm run build:frontend && cross-env NODE_ENV=production electron ."
+    "start:prod": "npm run build && cross-env NODE_ENV=production concurrently -k \"node scripts/run-backend.mjs\" \"wait-on http://localhost:3000/api/health && electron .\""
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

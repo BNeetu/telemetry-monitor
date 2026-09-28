@@ -46,13 +46,15 @@ npm install --prefix backend
 npm install --prefix frontend
 ```
 
-### 2. Run in development mode (recommended)
+### 2. Run the full application
 
-This starts the backend, Angular dev server, and Electron desktop window:
+From the project root, run:
 
 ```bash
-npm run dev
+npm start
 ```
+
+This starts the backend API, Angular dev server, and Electron desktop window together. Use `npm run dev` for the same workflow.
 
 Services:
 - Backend API: `http://localhost:3000/api/dashboard`
@@ -79,6 +81,8 @@ Open `http://localhost:4200` in a browser.
 ```bash
 npm run start:prod
 ```
+
+This builds the backend and frontend, starts the compiled API, waits for its health check, and opens the built Angular app in Electron.
 
 ## Deploy the Web App
 
