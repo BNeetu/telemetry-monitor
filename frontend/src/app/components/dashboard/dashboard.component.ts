@@ -1,7 +1,7 @@
 import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { DashboardResponse } from '../../models/telemetry.model';
+import { ConvertedParameter } from '../../models/telemetry.model';
 import { ExportService } from '../../services/export.service';
 import { TelemetryService } from '../../services/telemetry.service';
 import { ThemeService } from '../../services/theme.service';
@@ -15,11 +15,12 @@ import { ParameterCardComponent } from '../parameter-card/parameter-card.compone
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  private rawSub?: Subscription;
-  latestRaw: DashboardResponse | null = null;
+  private paramsSub?: Subscription;
+  latestParameters: ConvertedParameter[] = [];
   settingsOpen = false;
   readonly sampleWindow = 100;
   readonly refreshRateMs = 1000;
+  readonly skeletonSlots = [0, 1, 2];
 
   constructor(
     public telemetryService: TelemetryService,
@@ -29,14 +30,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.telemetryService.startPolling();
-    this.rawSub = this.telemetryService.rawData.subscribe((data) => {
-      this.latestRaw = data;
+    this.paramsSub = this.telemetryService.parameters.subscribe((params) => {
+      this.latestParameters = params;
     });
   }
 
   ngOnDestroy(): void {
     this.telemetryService.stopPolling();
-    this.rawSub?.unsubscribe();
+    this.paramsSub?.unsubscribe();
   }
 
   onUnitChanged(): void {
@@ -44,11 +45,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   exportCsv(): void {
-    this.exportService.exportCsv(this.latestRaw);
+    this.exportService.exportCsv(this.latestParameters);
   }
 
   exportExcel(): void {
-    this.exportService.exportExcel(this.latestRaw);
+    this.exportService.exportExcel(this.latestParameters);
   }
 
   toggleTheme(): void {
@@ -58,6 +59,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   toggleSettings(): void {
     this.settingsOpen = !this.settingsOpen;
+  }
+
+  closeSettings(): void {
+    this.settingsOpen = false;
   }
 
   get connectionLabel(): string {

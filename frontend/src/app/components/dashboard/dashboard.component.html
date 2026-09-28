@@ -81,6 +81,7 @@
         </button>
 
         @if (settingsOpen) {
+          <div class="settings-backdrop" (click)="closeSettings()"></div>
           <div class="settings-panel">
             <div class="settings-row">
               <span>Sample window</span>
@@ -130,12 +131,29 @@
   </div>
 
   <section class="cards-grid">
-    @for (param of telemetryService.parameters | async; track param.key) {
-      <app-parameter-card
-        [parameter]="param"
-        [lastUpdated]="(telemetryService.lastUpdated | async) ?? null"
-        (unitChange)="onUnitChanged()"
-      />
+    @if ((telemetryService.parameters | async)?.length) {
+      @for (param of telemetryService.parameters | async; track param.key) {
+        <app-parameter-card
+          [parameter]="param"
+          [lastUpdated]="(telemetryService.lastUpdated | async) ?? null"
+          (unitChange)="onUnitChanged()"
+        />
+      }
+    } @else {
+      @for (i of skeletonSlots; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton-row skeleton-header"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-circle"></div>
+            <div class="skeleton-lines">
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+            </div>
+          </div>
+          <div class="skeleton-row skeleton-chart"></div>
+        </div>
+      }
     }
   </section>
 </div>

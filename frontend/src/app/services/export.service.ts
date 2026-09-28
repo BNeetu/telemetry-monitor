@@ -1,14 +1,27 @@
 import { Injectable } from '@angular/core';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import { DashboardResponse } from '../models/telemetry.model';
+import { ConvertedParameter } from '../models/telemetry.model';
+
+interface ExportRow {
+  timestamp: string;
+  velocity: number | string;
+  velocityUnit: string;
+  pressure: number | string;
+  pressureUnit: string;
+  temperature: number | string;
+  temperatureUnit: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ExportService {
-  exportCsv(data: DashboardResponse | null): void {
-    if (!data) return;
+  // Builds one row per historical sample, using whatever units are currently
+  // selected in the UI (not the raw backend units) so the export matches
+  // what the user is actually looking at on screen.
+  exportCsv(parameters: ConvertedParameter[] | null): void {
+    if (!parameters?.length) return;
 
-    const rows = this.buildRows(data);
+    const rows = this.buildRows(parameters);
     const header = 'Timestamp,Velocity,Velocity Unit,Pressure,Pressure Unit,Temperature,Temperature Unit';
     const body = rows
       .map(
@@ -21,10 +34,10 @@ export class ExportService {
     saveAs(blob, `telemetry-${this.fileStamp()}.csv`);
   }
 
-  exportExcel(data: DashboardResponse | null): void {
-    if (!data) return;
+  exportExcel(parameters: ConvertedParameter[] | null): void {
+    if (!parameters?.length) return;
 
-    const rows = this.buildRows(data);
+    const rows = this.buildRows(parameters);
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Telemetry');
@@ -35,37 +48,28 @@ export class ExportService {
     saveAs(blob, `telemetry-${this.fileStamp()}.xlsx`);
   }
 
-  private buildRows(data: DashboardResponse) {
+  private buildRows(parameters: ConvertedParameter[]): ExportRow[] {
+    const velocity = parameters.find((p) => p.key === 'velocity');
+    const pressure = parameters.find((p) => p.key === 'pressure');
+    const temperature = parameters.find((p) => p.key === 'temperature');
+
     const maxLen = Math.max(
-      data.velocity.history.length,
-      data.pressure.history.length,
-      data.temperature.history.length
+      velocity?.history.length ?? 0,
+      pressure?.history.length ?? 0,
+      temperature?.history.length ?? 0,
+      1
     );
 
-    const rows = [];
+    const rows: ExportRow[] = [];
     for (let i = 0; i < maxLen; i++) {
       rows.push({
-        timestamp: data.timestamp,
-        velocity: data.velocity.history[i]?.value ?? data.velocity.value,
-        velocityUnit: data.velocity.unit,
-        pressure: data.pressure.history[i]?.value ?? data.pressure.value,
-        pressureUnit: data.pressure.unit,
-        temperature: data.temperature.history[i]?.value ?? data.temperature.value,
-        temperatureUnit: data.temperature.unit,
-        time: data.velocity.history[i]?.time ?? '',
-      });
-    }
-
-    if (rows.length === 0) {
-      rows.push({
-        timestamp: data.timestamp,
-        velocity: data.velocity.value,
-        velocityUnit: data.velocity.unit,
-        pressure: data.pressure.value,
-        pressureUnit: data.pressure.unit,
-        temperature: data.temperature.value,
-        temperatureUnit: data.temperature.unit,
-        time: '',
+        timestamp: velocity?.history[i]?.time ?? pressure?.history[i]?.time ?? '',
+        velocity: velocity?.history[i]?.value ?? velocity?.value ?? '',
+        velocityUnit: velocity?.unit ?? '',
+        pressure: pressure?.history[i]?.value ?? pressure?.value ?? '',
+        pressureUnit: pressure?.unit ?? '',
+        temperature: temperature?.history[i]?.value ?? temperature?.value ?? '',
+        temperatureUnit: temperature?.unit ?? '',
       });
     }
 

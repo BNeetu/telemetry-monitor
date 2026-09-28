@@ -40,13 +40,51 @@ Chart.register(
 @Component({
   selector: 'app-trend-chart',
   standalone: true,
-  template: '<div class="chart-wrapper"><canvas #chartCanvas></canvas></div>',
+  template: `
+    <div class="chart-wrapper">
+      <button type="button" class="reset-zoom" (click)="resetZoom()" title="Reset zoom">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M3 12a9 9 0 1 1 3 6.7M3 12v5h5"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+      <canvas #chartCanvas></canvas>
+    </div>
+  `,
   styles: [
     `
       .chart-wrapper {
         position: relative;
         height: 220px;
         width: 100%;
+      }
+
+      .reset-zoom {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--bg-surface-alt);
+        color: var(--text-tertiary);
+        cursor: pointer;
+        transition: color 0.15s ease, border-color 0.15s ease;
+      }
+
+      .reset-zoom:hover {
+        color: var(--accent);
+        border-color: var(--accent);
       }
     `,
   ],
@@ -82,6 +120,10 @@ export class TrendChartComponent implements AfterViewInit, OnChanges, OnDestroy 
 
   ngOnDestroy(): void {
     this.chart?.destroy();
+  }
+
+  resetZoom(): void {
+    this.chart?.resetZoom();
   }
 
   private createChart(): void {
